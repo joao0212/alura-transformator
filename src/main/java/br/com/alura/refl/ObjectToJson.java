@@ -12,26 +12,27 @@ public class ObjectToJson {
 
     public String transform(Object object) {
         String result = null;
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-            Map<String, Object> mapper = new HashMap<>();
-            Class<?> classToBeTransformed = object.getClass();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-            Arrays.stream(classToBeTransformed.getDeclaredFields()).toList().forEach(
-                    field -> {
-                        field.setAccessible(true);
-                        String fieldName = field.getName();
-                        Object fieldValue = null;
-                        try {
-                            fieldValue = field.get(object);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        }
-                        mapper.put(fieldName, fieldValue);
+        Map<String, Object> mapper = new HashMap<>();
+        Class<?> classToBeTransformed = object.getClass();
+
+        Arrays.stream(classToBeTransformed.getDeclaredFields()).toList().forEach(
+                field -> {
+                    field.setAccessible(true);
+                    String key = field.getName();
+                    Object value = null;
+                    try {
+                        value = field.get(object);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
                     }
-            );
+                    mapper.put(key, value);
+                }
+        );
+        try {
             result = objectMapper.writeValueAsString(mapper);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
